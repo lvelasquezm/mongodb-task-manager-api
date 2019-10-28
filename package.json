@@ -1,0 +1,20 @@
+{
+  "name": "mongodb-task-manager-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Lawrence Velasquez",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon --exec babel-node src/index.js"
+  },
+  "dependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/node": "^7.6.3",
+    "@babel/preset-env": "^7.6.3",
+    "express": "^4.17.1",
+    "mongoose": "^5.7.7",
+    "nodemon": "^1.19.4",
+    "validator": "^12.0.0"
+  }
+}
