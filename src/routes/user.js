@@ -55,6 +55,28 @@ router.post('/users/login', async (req, res) => {
   }
 });
 
+router.post('/users/logout', authMiddleware, async (req, res) => {
+  try {
+    req.user.tokens = req.user.tokens.filter(
+      token => token.token !== req.token
+    );
+    await req.user.save();
+    res.send();
+  } catch {
+    req.status(500).send();
+  }
+});
+
+router.post('/users/logoutAll', authMiddleware, async (req, res) => {
+  try {
+    req.user.tokens = [];
+    await req.user.save();
+    res.send();
+  } catch {
+    req.status(500).send();
+  }
+});
+
 router.patch('/users/:id', async (req, res) => {
   const updateKeys = Object.keys(req.body);
   const validUpdateKeys = ['name', 'email', 'password', 'age'];
