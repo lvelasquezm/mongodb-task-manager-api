@@ -1,10 +1,22 @@
 import { Router } from 'express';
-import { Types } from 'mongoose';
+import multer from 'multer';
 
 import User from '../models/user';
 import authMiddleware from '../middlewares/auth';
 
 const router = new Router();
+const upload = multer({
+  limits: {
+    fileSize: 1000000
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+      return cb(new Error('Please upload an image'));
+    }
+
+    cb(null, true);
+  }
+});
 
 router.get('/users/me', authMiddleware, async (req, res) => {
   res.send(req.user);
@@ -57,6 +69,18 @@ router.post('/users/logoutAll', authMiddleware, async (req, res) => {
   }
 });
 
+router.post(
+  '/users/me/avatar',
+  authMiddleware,
+  upload.single('avatar'),
+  async (req, res) => {
+    req.user.avatar = req.file.buffer;
+    await req.user.save();
+    res.send();
+  },
+  (error, req, res, next) => res.status(400).send({ error: error.message })
+);
+
 router.patch('/users/me', authMiddleware, async (req, res) => {
   const updateKeys = Object.keys(req.body);
   const validUpdateKeys = ['name', 'email', 'password', 'age'];
@@ -83,6 +107,12 @@ router.delete('/users/me', authMiddleware, async (req, res) => {
   } catch {
     return res.status(400).send();
   }
+});
+
+router.delete('/users/me/avatar', authMiddleware, async (req, res) => {
+  req.user.avatar = undefined;
+  await req.user.save();
+  res.send();
 });
 
 export default router;
