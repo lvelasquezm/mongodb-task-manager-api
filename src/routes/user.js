@@ -57,7 +57,7 @@ router.post('/users/logoutAll', authMiddleware, async (req, res) => {
   }
 });
 
-router.patch('/users/:id', async (req, res) => {
+router.patch('/users/me', authMiddleware, async (req, res) => {
   const updateKeys = Object.keys(req.body);
   const validUpdateKeys = ['name', 'email', 'password', 'age'];
   const isValidUpdate = updateKeys.every(key => validUpdateKeys.includes(key));
@@ -67,16 +67,10 @@ router.patch('/users/:id', async (req, res) => {
   }
 
   try {
-    const user = await User.findById(req.params.id);
+    updateKeys.forEach(update => (req.user[update] = req.body[update]));
+    await req.user.save();
 
-    if (!user) {
-      return res.status(400).send();
-    }
-
-    updateKeys.forEach(update => (user[update] = req.body[update]));
-    await user.save();
-
-    res.send(user);
+    res.send(req.user);
   } catch (error) {
     res.status(400).send(error);
   }
