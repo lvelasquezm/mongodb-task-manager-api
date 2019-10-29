@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 import { Schema, model } from 'mongoose';
 import { isEmail } from 'validator';
 
+import Task from '../models/task';
+
 const userSchema = new Schema({
   name: {
     type: String,
@@ -102,6 +104,13 @@ userSchema.pre('save', async function(next) {
     user.password = await bcrypt.hash(user.password, 10);
   }
 
+  next();
+});
+
+// Delete user tasks when user is removed
+userSchema.pre('remove', async function(next) {
+  const user = this;
+  await Task.deleteMany({ owner: user._id });
   next();
 });
 
