@@ -82,15 +82,10 @@ router.patch('/users/:id', async (req, res) => {
   }
 });
 
-router.delete('/users/:id', async (req, res) => {
+router.delete('/users/me', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
-
-    if (!user) {
-      return res.status(404).send();
-    }
-
-    return res.send(user);
+    await req.user.remove();
+    res.send(req.user);
   } catch {
     return res.status(400).send();
   }
