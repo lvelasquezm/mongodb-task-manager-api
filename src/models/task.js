@@ -1,4 +1,4 @@
-import { model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 export default new model('Task', {
   description: {
@@ -9,5 +9,10 @@ export default new model('Task', {
   completed: {
     type: Boolean,
     default: false
+  },
+  owner: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'User'
   }
 });

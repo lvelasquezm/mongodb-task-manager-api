@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { Types } from 'mongoose';
 
 import Task from '../models/task';
+import authMiddleware from '../middlewares/auth';
 
 const router = new Router();
 
@@ -34,8 +35,11 @@ router.get('/tasks/:id', async (req, res) => {
   }
 });
 
-router.post('/tasks', async (req, res) => {
-  const task = new Task(req.body);
+router.post('/tasks', authMiddleware, async (req, res) => {
+  const task = new Task({
+    ...req.body,
+    owner: req.user._id
+  });
 
   try {
     await task.save();

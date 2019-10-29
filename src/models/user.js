@@ -51,6 +51,14 @@ const userSchema = new Schema({
   ]
 });
 
+// Virtual property on user model (taks model has an
+// 'owner' property which holds the ref to the user model)
+userSchema.virtual('tasks', {
+  ref: 'Task',
+  localField: '_id',
+  foreignField: 'owner'
+});
+
 // Generate JWT
 userSchema.methods.generateAuthToken = async function() {
   const user = this;
