@@ -2,16 +2,12 @@ import { Router } from 'express';
 import { Types } from 'mongoose';
 
 import User from '../models/user';
+import authMiddleware from '../middlewares/auth';
 
 const router = new Router();
 
-router.get('/users', async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.send(users);
-  } catch {
-    res.status(500).send();
-  }
+router.get('/users/me', authMiddleware, async (req, res) => {
+  res.send(req.user);
 });
 
 router.get('/users/:id', async (req, res) => {
