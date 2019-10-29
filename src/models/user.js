@@ -10,6 +10,7 @@ const userSchema = new Schema({
   },
   email: {
     type: String,
+    unique: true,
     required: true,
     trim: true,
     lowercase: true,
@@ -41,6 +42,17 @@ const userSchema = new Schema({
   }
 });
 
+userSchema.statics.findByCredentials = async (email, password) => {
+  const user = await User.findOne({ email });
+  if (!user) throw new Error('Unable to login');
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) throw new Error('Unable to login');
+
+  return user;
+};
+
+// Hash the plain text password before saving the user
 userSchema.pre('save', async function(next) {
   const user = this;
 
@@ -51,4 +63,6 @@ userSchema.pre('save', async function(next) {
   next();
 });
 
-export default new model('User', userSchema);
+const User = new model('User', userSchema);
+
+export default User;

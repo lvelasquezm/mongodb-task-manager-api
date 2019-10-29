@@ -45,6 +45,18 @@ router.post('/users', async (req, res) => {
   }
 });
 
+router.post('/users/login', async (req, res) => {
+  try {
+    const user = await User.findByCredentials(
+      req.body.email,
+      req.body.password
+    );
+    res.send(user);
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
+
 router.patch('/users/:id', async (req, res) => {
   const updateKeys = Object.keys(req.body);
   const validUpdateKeys = ['name', 'email', 'password', 'age'];
