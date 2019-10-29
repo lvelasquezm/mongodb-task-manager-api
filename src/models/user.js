@@ -1,7 +1,8 @@
-import { model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { isEmail } from 'validator';
+import bcrypt from 'bcryptjs';
 
-export default new model('User', {
+const userSchema = new Schema({
   name: {
     type: String,
     required: true,
@@ -39,3 +40,15 @@ export default new model('User', {
     }
   }
 });
+
+userSchema.pre('save', async function(next) {
+  const user = this;
+
+  if (user.isModified('password')) {
+    user.password = await bcrypt.hash(user.password, 10);
+  }
+
+  next();
+});
+
+export default new model('User', userSchema);
