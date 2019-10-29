@@ -6,24 +6,24 @@ import authMiddleware from '../middlewares/auth';
 
 const router = new Router();
 
-router.get('/tasks', async (req, res) => {
+router.get('/tasks', authMiddleware, async (req, res) => {
   try {
-    const tasks = await Task.find({});
-    res.send(tasks);
+    await req.user.populate('tasks').execPopulate();
+    res.send(req.user.tasks);
   } catch {
     res.status(500).send();
   }
 });
 
-router.get('/tasks/:id', async (req, res) => {
-  const { id } = req.params;
+router.get('/tasks/:id', authMiddleware, async (req, res) => {
+  const { id: _id } = req.params;
 
-  if (!Types.ObjectId.isValid(id)) {
+  if (!Types.ObjectId.isValid(_id)) {
     return res.status(400).send({ error: 'Invalid ID' });
   }
 
   try {
-    const task = await Task.findById(id);
+    const task = await Task.findOne({ _id, owner: req.user._id });
 
     if (!task) {
       return res.status(404).send();
@@ -49,7 +49,7 @@ router.post('/tasks', authMiddleware, async (req, res) => {
   }
 });
 
-router.patch('/tasks/:id', async (req, res) => {
+router.patch('/tasks/:id', authMiddleware, async (req, res) => {
   const updateKeys = Object.keys(req.body);
   const validUpdateKeys = ['description', 'completed'];
   const isValidUpdate = updateKeys.every(key => validUpdateKeys.includes(key));
@@ -59,10 +59,13 @@ router.patch('/tasks/:id', async (req, res) => {
   }
 
   try {
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findOne({
+      _id: req.params.id,
+      owner: req.user._id
+    });
 
     if (!task) {
-      return res.status(400).send();
+      return res.status(404).send();
     }
 
     updateKeys.forEach(update => (task[update] = req.body[update]));
@@ -74,15 +77,18 @@ router.patch('/tasks/:id', async (req, res) => {
   }
 });
 
-router.delete('/tasks/:id', async (req, res) => {
+router.delete('/tasks/:id', authMiddleware, async (req, res) => {
   try {
-    const task = await Task.findByIdAndDelete(req.params.id);
+    const task = await Task.findOneAndDelete({
+      _id: req.params.id,
+      owner: req.user._id
+    });
 
     if (!task) {
       return res.status(404).send();
     }
 
-    return res.send(task);
+    res.send(task);
   } catch {
     return res.status(400).send();
   }
