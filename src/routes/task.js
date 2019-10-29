@@ -7,6 +7,7 @@ import authMiddleware from '../middlewares/auth';
 const router = new Router();
 
 // GET /tasks?completed=true
+// GET /tasks?limit=5&skip=0
 router.get('/tasks', authMiddleware, async (req, res) => {
   const match = {};
 
@@ -15,7 +16,16 @@ router.get('/tasks', authMiddleware, async (req, res) => {
   }
 
   try {
-    await req.user.populate({ path: 'tasks', match }).execPopulate();
+    await req.user
+      .populate({
+        path: 'tasks',
+        match,
+        options: {
+          limit: parseInt(req.query.limit),
+          skip: parseInt(req.query.skip)
+        }
+      })
+      .execPopulate();
     res.send(req.user.tasks);
   } catch {
     res.status(500).send();
