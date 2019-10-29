@@ -8,11 +8,18 @@ const router = new Router();
 
 // GET /tasks?completed=true
 // GET /tasks?limit=5&skip=0
+// GET /tasks?sortBy=createdAt:desc
 router.get('/tasks', authMiddleware, async (req, res) => {
   const match = {};
+  const sort = {};
 
   if (req.query.completed) {
     match.completed = req.query.completed === 'true';
+  }
+
+  if (req.query.sortBy) {
+    const [field, order] = req.query.sortBy.split(':');
+    sort[field] = order === 'asc' ? 1 : -1;
   }
 
   try {
@@ -22,7 +29,8 @@ router.get('/tasks', authMiddleware, async (req, res) => {
         match,
         options: {
           limit: parseInt(req.query.limit),
-          skip: parseInt(req.query.skip)
+          skip: parseInt(req.query.skip),
+          sort
         }
       })
       .execPopulate();
