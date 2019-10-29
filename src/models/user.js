@@ -1,6 +1,7 @@
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { Schema, model } from 'mongoose';
 import { isEmail } from 'validator';
-import bcrypt from 'bcryptjs';
 
 const userSchema = new Schema({
   name: {
@@ -39,9 +40,30 @@ const userSchema = new Schema({
         throw new Error('Age must be a positive number');
       }
     }
-  }
+  },
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true
+      }
+    }
+  ]
 });
 
+// Generate JWT
+userSchema.methods.generateAuthToken = async function() {
+  const user = this;
+  const payload = { _id: user._id.toString() };
+  const token = jwt.sign(payload, 'randomsecret!@$%', { expiresIn: '7 days' });
+
+  user.tokens = user.tokens.concat({ token });
+  await user.save();
+
+  return token;
+};
+
+// Static method to find a user by email and password
 userSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email });
   if (!user) throw new Error('Unable to login');
