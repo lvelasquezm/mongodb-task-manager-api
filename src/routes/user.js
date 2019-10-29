@@ -10,26 +10,6 @@ router.get('/users/me', authMiddleware, async (req, res) => {
   res.send(req.user);
 });
 
-router.get('/users/:id', async (req, res) => {
-  const { id } = req.params;
-
-  if (!Types.ObjectId.isValid(id)) {
-    return res.status(400).send({ error: 'Invalid ID' });
-  }
-
-  try {
-    const user = await User.findById(id);
-
-    if (!user) {
-      return res.status(404).send();
-    }
-
-    res.send(user);
-  } catch {
-    res.status(500).send();
-  }
-});
-
 router.post('/users', async (req, res) => {
   const user = new User(req.body);
 
