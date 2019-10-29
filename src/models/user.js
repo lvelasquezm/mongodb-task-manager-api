@@ -63,7 +63,7 @@ userSchema.methods.generateAuthToken = async function() {
   return token;
 };
 
-// Get public profile
+// Delete/Remove private properties
 userSchema.methods.toJSON = function() {
   const user = this;
   const userObject = user.toObject();
