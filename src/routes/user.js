@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
+import sharp from 'sharp';
 
 import User from '../models/user';
 import authMiddleware from '../middlewares/auth';
@@ -102,7 +103,15 @@ router.post(
   authMiddleware,
   upload.single('avatar'),
   async (req, res) => {
-    req.user.avatar = req.file.buffer;
+    const buffer = await sharp(req.file.buffer)
+      .resize({
+        width: 250,
+        height: 250
+      })
+      .png()
+      .toBuffer();
+
+    req.user.avatar = buffer;
     await req.user.save();
     res.send();
   },
@@ -123,7 +132,7 @@ router.get('/users/:id/avatar', async (req, res) => {
       throw new Error();
     }
 
-    res.set('Content-Type', 'image/jpg');
+    res.set('Content-Type', 'image/png');
     res.send(user.avatar);
   } catch {
     res.status(404).send();
