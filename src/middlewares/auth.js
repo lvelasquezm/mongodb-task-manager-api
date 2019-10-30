@@ -4,7 +4,7 @@ import User from '../models/user';
 export default async (req, res, next) => {
   try {
     const token = req.header('Authorization').replace('Bearer ', '');
-    const jwtDecoded = jwt.verify(token, 'randomsecret!@$%');
+    const jwtDecoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findOne({
       _id: jwtDecoded._id,
       'tokens.token': token

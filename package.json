@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon --exec babel-node src/index.js"
+    "dev": "env-cmd -f ./config/dev.env nodemon --exec babel-node src/index.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -21,6 +21,7 @@
     "@babel/core": "^7.6.4",
     "@babel/node": "^7.6.3",
     "@babel/preset-env": "^7.6.3",
+    "env-cmd": "^10.0.1",
     "nodemon": "^1.19.4"
   }
 }

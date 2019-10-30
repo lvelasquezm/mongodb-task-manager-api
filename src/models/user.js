@@ -73,7 +73,9 @@ userSchema.virtual('tasks', {
 userSchema.methods.generateAuthToken = async function() {
   const user = this;
   const payload = { _id: user._id.toString() };
-  const token = jwt.sign(payload, 'randomsecret!@$%', { expiresIn: '7 days' });
+  const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: '7 days'
+  });
 
   user.tokens = user.tokens.concat({ token });
   await user.save();
